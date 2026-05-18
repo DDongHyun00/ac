@@ -191,7 +191,7 @@ def build_prompt(data: dict) -> tuple:
 5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
 6. 모든 URL은 실제 존재하는 링크만 반환해야 한다.
 7. 확신이 없는 링크는 생성하지 말고 빈 문자열("") 반환.
-8. 추천 제품은 사용자 상황에 따라 다양하게 선택한다. 같은 브랜드나 제품만 반복 추천하지 마라 사용자 예산과 증상에 따라 다른 제품을 추천한다.
+8. 추천 제품은 사용자 상황에 따라 다양하게 선택한다. 같은 브랜드나 제품만 반복 추천하지 마라사용자 예산과 증상에 따라 다른 제품을 추천한다.
 """
 
     lines = [
@@ -408,87 +408,20 @@ def show():
             "images":          images_b64 if images_b64 else None,
         }
 
-       # GPT 호출
-with st.spinner("🧚 척추요정이 분석 중입니다... 잠시만 기다려 주세요!"):
-    try:
-        system, content = build_prompt(data)
-        result = call_gpt(system, content)
+        # GPT 호출
+        with st.spinner("🧚 척추요정이 분석 중입니다... 잠시만 기다려 주세요!"):
+            try:
+                system, content = build_prompt(data)
+                result = call_gpt(system, content)
 
-        # ── 하드코딩 가구 추천 ─────────────────────────────
+                # ✅ session_state에 결과 저장 후 result 페이지로 이동
+                st.session_state.result     = result
+                st.session_state.desk_h     = desk_h
+                st.session_state.chair_h    = chair_h
+                st.session_state.page       = "result"
+                st.rerun()
 
-        hardcoded_products = []
-
-        # 허리 통증 사용자
-        if "허리 통증" in final_complaints:
-
-            if budget and budget >= 300000:
-
-                hardcoded_products.append({
-                    "name": "시디즈 T50 의자",
-                    "reason": "허리 지지 기능이 뛰어나 장시간 착석 시 부담을 줄여줍니다.",
-                    "price_approx": "320,000원",
-                    "url": "https://kr.sidiz.com"
-                })
-
-                hardcoded_products.append({
-                    "name": "이케아 BEKANT 책상",
-                    "reason": "높이 조절이 가능하여 바른 자세 유지에 도움됩니다.",
-                    "price_approx": "250,000원",
-                    "url": "https://www.ikea.com/kr/ko/"
-                })
-
-            else:
-
-                hardcoded_products.append({
-                    "name": "듀오백 Q1W",
-                    "reason": "가성비가 좋은 인체공학 의자입니다.",
-                    "price_approx": "190,000원",
-                    "url": "https://www.duoback.co.kr"
-                })
-
-        # 목 통증 사용자
-        elif "목 통증" in final_complaints:
-
-            hardcoded_products.append({
-                "name": "시디즈 TAB+",
-                "reason": "목과 어깨 부담 완화에 도움되는 자세 교정형 의자입니다.",
-                "price_approx": "230,000원",
-                "url": "https://kr.sidiz.com"
-            })
-
-        # 어깨 통증 사용자
-        elif "어깨 통증" in final_complaints:
-
-            hardcoded_products.append({
-                "name": "한샘 샘책상",
-                "reason": "적절한 높이로 어깨 긴장을 줄여줍니다.",
-                "price_approx": "180,000원",
-                "url": "https://www.hanssem.com"
-            })
-
-        # 기본 추천
-        else:
-
-            hardcoded_products.append({
-                "name": "시디즈 T40",
-                "reason": "기본적인 자세 교정에 적합한 인체공학 의자입니다.",
-                "price_approx": "260,000원",
-                "url": "https://kr.sidiz.com"
-            })
-
-        # GPT 결과 덮어쓰기
-        result["furniture_recommendation"] = hardcoded_products
-
-        # ✅ session_state에 결과 저장 후 result 페이지로 이동
-        st.session_state.result = result
-        st.session_state.desk_h = desk_h
-        st.session_state.chair_h = chair_h
-        st.session_state.page = "result"
-
-        st.rerun()
-
-    except json.JSONDecodeError:
-        st.error("GPT 응답 파싱에 실패했습니다. 다시 시도해 주세요.", icon="❌")
-
-    except Exception as e:
-        st.error(f"오류가 발생했습니다: {str(e)}", icon="❌")
+            except json.JSONDecodeError:
+                st.error("GPT 응답 파싱에 실패했습니다. 다시 시도해 주세요.", icon="❌")
+            except Exception as e:
+                st.error(f"오류가 발생했습니다: {str(e)}", icon="❌")
