@@ -157,11 +157,40 @@ def build_prompt(data: dict) -> tuple:
 3. desk_chair_solution: 허벅지 길이·앉은키 데이터가 있으면 정밀 계산, 없으면 키 기반 표준 추정값 제공
    - 의자 높이 계산 기준: 허벅지 길이 또는 키×0.25
    - 책상 높이 계산 기준: 의자 높이 + 앉은키×0.45 또는 키×0.43 추정
-4. furniture_recommendation: 현재 책상/의자 높이가 권장 범위를 벗어나고 조절이 불가한 경우에만 추천.
-   예산이 있을 때: 예산 내 실제 한국 판매 제품 추천
-   예산이 없을 때: 일반적인 가격대 제품 추천
-   예산 초과 시: furniture_note에 명시하고 빈 배열 반환
+4. furniture_recommendation:
+   현재 책상/의자 높이가 권장 범위를 벗어나고 조절이 불가한 경우에만 추천.
+
+   예산이 있을 때:
+   - 반드시 예산 내 실제 한국 판매 제품 추천
+
+   예산이 없을 때:
+   - 일반적인 가격대 제품 추천
+
+   URL 규칙:
+   - 반드시 실제 제품 상세 페이지 URL만 반환
+   - 절대 브랜드 메인 홈페이지 반환 금지
+   - 절대 검색 결과 페이지 반환 금지
+   - 절대 카테고리 페이지 반환 금지
+   - 사용자가 클릭 시 바로 해당 상품 구매 페이지로 이동 가능해야 함
+
+   잘못된 예시:
+   - https://www.sidiz.com
+   - https://www.ikea.com/kr
+   - https://shopping.naver.com
+
+   올바른 예시:
+   - https://www.sidiz.com/product/detail/12345
+   - https://www.ikea.com/kr/ko/p/product-name-30512345/
+
+   존재하지 않는 URL을 추측해서 생성하지 마라.
+   정확한 URL을 찾지 못하면 "url": "" 반환.
+
+   예산 초과 시:
+   - furniture_note에 이유 설명
+   - furniture_recommendation은 빈 배열 반환
 5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
+6. 모든 URL은 실제 존재하는 링크만 반환해야 한다.
+7. 확신이 없는 링크는 생성하지 말고 빈 문자열("") 반환.
 """
 
     lines = [
