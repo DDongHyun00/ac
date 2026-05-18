@@ -261,7 +261,7 @@ def call_gpt(system: str, content) -> dict:
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
-        temperature=1.0,
+        temperature=0.3,
         max_tokens=2500,
         response_format={"type": "json_object"},
     )
