@@ -1,5 +1,6 @@
 import streamlit as st
-from pages import main, result
+import main
+import result
 
 # 최초 실행 시 page 초기화
 if "page" not in st.session_state:
