@@ -4,8 +4,6 @@ import base64
 import json
 from PIL import Image
 import io
-import requests
-import re
 
 
 # ── CSS ──────────────────────────────────────────────────────────────────────
@@ -17,11 +15,9 @@ def inject_css():
     html, body, [class*="css"] {
         font-family: 'Noto Sans KR', sans-serif;
     }
-
     .stApp {
         background: linear-gradient(135deg, #f0f4ff 0%, #faf0ff 50%, #f0fff8 100%);
     }
-
     .block-container {
         max-width: 900px !important;
         padding-left: 2rem !important;
@@ -29,7 +25,6 @@ def inject_css():
         margin-left: auto !important;
         margin-right: auto !important;
     }
-
     .main-header {
         text-align: center;
         padding: 2.5rem 0 0.5rem 0;
@@ -38,30 +33,31 @@ def inject_css():
         background: linear-gradient(90deg, #667eea, #a855f7, #22c55e);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
     }
-
     .sub-header {
         text-align: center;
         color: #9ca3af;
         font-size: 1rem;
         margin-bottom: 2.5rem;
+        letter-spacing: 0.5px;
     }
-
     .section-card {
         background: rgba(255,255,255,0.88);
         border-radius: 20px;
         padding: 1.8rem 2rem;
         margin-bottom: 1.4rem;
         box-shadow: 0 4px 20px rgba(102,126,234,0.09);
+        border: 1.5px solid rgba(102,126,234,0.12);
+        backdrop-filter: blur(8px);
     }
-
     .section-title {
         font-size: 1.12rem;
         font-weight: 700;
         color: #4338ca;
         margin-bottom: 1.1rem;
     }
-
     .badge-req {
         display: inline-block;
         background: #ef4444;
@@ -71,8 +67,8 @@ def inject_css():
         font-size: 0.68rem;
         font-weight: 700;
         margin-left: 7px;
+        vertical-align: middle;
     }
-
     .badge-opt {
         display: inline-block;
         background: #22c55e;
@@ -82,8 +78,8 @@ def inject_css():
         font-size: 0.68rem;
         font-weight: 700;
         margin-left: 7px;
+        vertical-align: middle;
     }
-
     .stButton > button {
         background: linear-gradient(90deg, #667eea 0%, #a855f7 100%);
         color: white !important;
@@ -93,6 +89,18 @@ def inject_css():
         font-size: 1.15rem;
         font-weight: 800;
         width: 100%;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(102,126,234,0.38);
+        letter-spacing: 1px;
+    }
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102,126,234,0.50);
+    }
+    div[data-testid="stFileUploader"] {
+        background: rgba(255,255,255,0.7);
+        border-radius: 14px;
+        padding: 0.5rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -107,96 +115,128 @@ def get_client():
 # ── 이미지 → base64 변환 ─────────────────────────────────────────────────────
 def image_to_base64(uploaded_file) -> str:
     img = Image.open(uploaded_file)
-
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
-
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=85)
-
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
 
-# ── 네이버 쇼핑 API 검색 ────────────────────────────────────────────────────
-def search_naver_product(query, limit=2):
-    client_id = st.secrets["NAVER_CLIENT_ID"]
-    client_secret = st.secrets["NAVER_CLIENT_SECRET"]
-
-    headers = {
-        "X-Naver-Client-Id": client_id,
-        "X-Naver-Client-Secret": client_secret
-    }
-
-    url = "https://openapi.naver.com/v1/search/shop.json"
-
-    params = {
-        "query": query,
-        "display": limit,
-        "sort": "sim"
-    }
-
-    response = requests.get(url, headers=headers, params=params)
-
-    if response.status_code != 200:
-        return []
-
-    data = response.json()
-
-    results = []
-
-    for item in data.get("items", []):
-        title = re.sub(r"<.*?>", "", item["title"])
-
-        results.append({
-            "name": title,
-            "reason": f"{query} 관련 추천 제품",
-            "price_approx": f"{int(item['lprice']):,}원",
-            "url": item["link"]
-        })
-
-    return results
-
-
-# ── GPT 프롬프트 생성 ───────────────────────────────────────────────────────
+# ── GPT-4o 프롬프트 생성 ─────────────────────────────────────────────────────
 def build_prompt(data: dict) -> tuple:
     has_images = bool(data.get("images"))
+    has_budget = data.get("budget") is not None
 
-    system = """
-당신은 척추·자세 교정 전문가입니다.
+    system = """당신은 척추·자세 교정 전문가이자 인체공학(에르고노믹스) 컨설턴트입니다.
+사용자의 신체 정보와 불편 증상을 바탕으로 다음 순서로 **한국어**로 답변하세요.
 
-반드시 아래 JSON만 반환하세요.
-
+[출력 형식 – 반드시 아래 JSON만 반환, 코드블록(```) 없이]
 {
   "problems": "...",
-  "photo_analysis": "...",
+  "photo_analysis": "...(사진 없으면 null)",
   "desk_chair_solution": {
     "recommended_chair_height_cm": 숫자,
     "recommended_desk_height_cm": 숫자,
     "explanation": "..."
   },
-  "furniture_recommendation": [],
-  "furniture_note": "...",
+  "furniture_recommendation": [
+    {
+      "name": "...",
+      "reason": "...",
+      "price_approx": "...",
+      "url": "..."
+    }
+  ],
+  "furniture_note": "...(예산 초과 또는 조절만으로 해결 가능 시 설명)",
   "monitor_tips": "..."
 }
 
 규칙:
-- furniture_recommendation은 반드시 빈 배열([]) 반환
-- 제품 추천은 하지 말 것
-- problems는 자세 문제 설명
-- monitor_tips는 눈높이/거리 설명
+1. problems: 입력된 불편사항과 신체 데이터를 바탕으로 예상 문제점을 설명 (사진 있으면 사진 분석 반영)
+2. photo_analysis: 사진이 있을 때만 거북목/디스크/골반전방경사/척추측만 등 자세 문제를 분석, 없으면 null
+3. desk_chair_solution: 허벅지 길이·앉은키 데이터가 있으면 정밀 계산, 없으면 키 기반 표준 추정값 제공
+   - 의자 높이 계산 기준: 허벅지 길이 또는 키×0.25
+   - 책상 높이 계산 기준: 의자 높이 + 앉은키×0.45 또는 키×0.43 추정
+4. furniture_recommendation:
+
+추천 제품은 반드시 아래 조건을 모두 만족해야 한다.
+
+[매우 중요]
+- 실제 한국에서 판매 중인 제품만 추천한다.
+- 존재 여부를 확신할 수 없는 제품명은 절대 생성하지 않는다.
+- 실제로 많이 알려진 브랜드와 대표 제품만 사용한다.
+- 예시 브랜드:
+  시디즈, 데스커, 일룸, 허먼밀러, 퍼시스, IKEA 등
+
+허용 예시:
+- 시디즈 T50
+- 허먼밀러 에어론
+- 데스커 모션데스크
+- IKEA BEKANT
+
+금지:
+- 존재 여부 불확실한 제품명 생성
+- 모델명 추측 생성
+- 브랜드 + 랜덤 숫자 조합 생성
+- 가짜 링크 생성
+
+URL 규칙:
+- URL은 기본적으로 빈 문자열("") 반환한다.
+- 절대 URL을 추측 생성하지 않는다.
+- 정확한 실제 상품 링크를 확신할 때만 URL 사용 가능.
+- 확신이 없으면 반드시 "" 반환.
+
+추천 기준:
+- 허리 통증 → 허리 지지 중심 의자 추천
+- 목/어깨 통증 → 모니터 높이 조절 환경 추천
+- 장시간 착석 → 인체공학 의자 추천
+- 예산 낮음 → 가성비 제품
+- 예산 높음 → 프리미엄 제품
+
+반드시 아래 JSON 형식만 사용:
+[
+  {
+    "name": "...",
+    "reason": "...",
+    "price_approx": "...",
+    "url": ""
+  }
+]
+5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
+6. 모든 URL은 실제 존재하는 링크만 반환해야 한다.
+7. 확신이 없는 링크는 생성하지 말고 빈 문자열("") 반환.
+8. 추천 제품은 사용자 상황에 따라 다양하게 선택한다. 같은 브랜드나 제품만 반복 추천하지 마라사용자 예산과 증상에 따라 다른 제품을 추천한다.
 """
 
     lines = [
-        f"키: {data['height']}cm",
-        f"몸무게: {data['weight']}kg",
-        f"불편사항: {', '.join(data['complaints'])}",
+        "## 사용자 신체 정보",
+        f"- 키: {data['height']} cm",
+        f"- 몸무게: {data['weight']} kg",
+        f"- 불편사항: {', '.join(data['complaints'])}",
     ]
+    if data.get("other_complaint"):
+        lines.append(f"- 기타 불편사항: {data['other_complaint']}")
+    if data.get("thigh_len"):
+        lines.append(f"- 허벅지 길이: {data['thigh_len']} cm")
+    if data.get("desk_h"):
+        lines.append(f"- 현재 책상 높이: {data['desk_h']} cm")
+    if data.get("chair_h"):
+        lines.append(f"- 현재 의자 높이: {data['chair_h']} cm")
+    if data.get("sitting_h"):
+        lines.append(f"- 앉은키: {data['sitting_h']} cm")
+    if has_budget:
+        lines.append(f"- 소지자금(가구 예산): {int(data['budget']):,}원")
+    else:
+        lines.append("- 소지자금: 미입력 (일반적인 가격대로 추천)")
+
+    if has_images:
+        lines.append("\n## 첨부 사진")
+        lines.append("아래 사진을 분석하여 자세 문제를 파악하고, 허벅지 길이와 앉은키도 추정해 주세요.")
 
     user_text = "\n".join(lines)
 
     if has_images:
         content = [{"type": "text", "text": user_text}]
-
         for b64 in data["images"]:
             content.append({
                 "type": "image_url",
@@ -211,175 +251,191 @@ def build_prompt(data: dict) -> tuple:
     return system, content
 
 
-# ── GPT 호출 ────────────────────────────────────────────────────────────────
+# ── GPT-4o 호출 ──────────────────────────────────────────────────────────────
 def call_gpt(system: str, content) -> dict:
     client = get_client()
-
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user",   "content": content},
+    ]
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": content},
-        ],
+        messages=messages,
         temperature=0.3,
         max_tokens=2500,
         response_format={"type": "json_object"},
     )
-
     return json.loads(response.choices[0].message.content)
 
 
-# ── 메인 ────────────────────────────────────────────────────────────────────
+# ── 메인 show() ──────────────────────────────────────────────────────────────
 def show():
     inject_css()
 
+    # 페이지 설정
     st.set_page_config(
         page_title="척추요정 🧚",
         page_icon="🧚",
         layout="wide",
+        initial_sidebar_state="collapsed",
     )
 
     st.markdown('<div class="main-header">🧚 척추요정</div>', unsafe_allow_html=True)
-
     st.markdown(
-        '<div class="sub-header">자세 분석 + 실제 구매 가능한 가구 추천</div>',
+        '<div class="sub-header">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>',
         unsafe_allow_html=True,
     )
 
-    # 기본정보
+    # ── 필수 입력 ──────────────────────────────────────────────────────────
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-
     st.markdown(
         '<div class="section-title">📋 기본 정보 <span class="badge-req">필수</span></div>',
         unsafe_allow_html=True,
     )
-
     col1, col2 = st.columns(2)
-
     with col1:
-        height = st.number_input("키", 100, 250, 170)
-
+        height = st.number_input("키 (cm)", min_value=100, max_value=250, value=170, step=1)
     with col2:
-        weight = st.number_input("몸무게", 20, 200, 65)
+        weight = st.number_input("몸무게 (kg)", min_value=20, max_value=200, value=65, step=1)
 
+    st.markdown("**불편사항** (해당하는 것 모두 선택)")
     complaint_options = [
-        "목 통증",
-        "허리 통증",
-        "어깨 통증",
-        "골반 통증",
-        "눈 피로",
-        "손목/팔 저림"
+        "목 통증", "허리 통증", "어깨 통증",
+        "골반 통증", "무릎/발목 통증", "두통",
+        "손목/팔 저림", "눈 피로", "기타",
     ]
-
     selected_complaints = []
-
     cols = st.columns(3)
-
     for i, opt in enumerate(complaint_options):
         with cols[i % 3]:
-            if st.checkbox(opt):
+            if st.checkbox(opt, key=f"chk_{opt}"):
                 selected_complaints.append(opt)
 
+    other_complaint = ""
+    if "기타" in selected_complaints:
+        other_complaint = st.text_input(
+            "기타 불편사항을 직접 입력하세요",
+            placeholder="예: 등이 뻐근함, 앉으면 다리가 저림 등",
+        )
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # 사진 업로드
+    # ── 선택 입력 ──────────────────────────────────────────────────────────
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-
-    uploaded_files = st.file_uploader(
-        "자세 사진 업로드",
-        type=["jpg", "jpeg", "png"],
-        accept_multiple_files=True
+    st.markdown(
+        '<div class="section-title">📐 신체 치수 <span class="badge-opt">선택</span></div>',
+        unsafe_allow_html=True,
     )
+    st.caption("입력할수록 더 정밀한 분석이 가능합니다.")
+    col3, col4, col5, col6 = st.columns(4)
+    with col3:
+        thigh_input = st.text_input("허벅지 길이 (cm)", placeholder="예: 42")
+    with col4:
+        desk_input = st.text_input("현재 책상 높이 (cm)", placeholder="예: 73")
+    with col5:
+        chair_input = st.text_input("현재 의자 높이 (cm)", placeholder="예: 45")
+    with col6:
+        sitting_input = st.text_input("앉은키 (cm)", placeholder="예: 88")
 
+    budget_raw = st.text_input(
+        "💰 소지자금 / 가구 구매 예산 (원)",
+        placeholder="예: 300000  ← 입력 시 예산 내 가구 추천",
+    )
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # 분석 버튼
-    analyze_btn = st.button("🧚 분석 시작")
+    # ── 사진 업로드 ────────────────────────────────────────────────────────
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-title">📸 자세 사진 <span class="badge-opt">선택 · 최대 4장</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "선 자세(정면/측면/후면) 총 4장의 사진을 업로드하면 "
+        "거북목·골반 전방경사·척추측만 등을 자동 분석합니다."
+    )
+    uploaded_files = st.file_uploader(
+        "사진 선택 (JPG / PNG, 최대 4장)",
+        type=["jpg", "jpeg", "png"],
+        accept_multiple_files=True,
+        key="photo_uploader",
+    )
+    if uploaded_files:
+        uploaded_files = uploaded_files[:4]
+        prev_cols = st.columns(len(uploaded_files))
+        for i, f in enumerate(uploaded_files):
+            with prev_cols[i]:
+                st.image(f, caption=f"사진 {i+1}", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── 분석 버튼 ──────────────────────────────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    analyze_btn = st.button("🧚 척추요정에게 분석 요청하기")
 
     if analyze_btn:
+        # 유효성 검사
+        errors = []
+        if not selected_complaints:
+            errors.append("불편사항을 1개 이상 선택해 주세요.")
+        if "기타" in selected_complaints and not other_complaint.strip():
+            errors.append("'기타' 선택 시 구체적인 불편사항을 입력해 주세요.")
+        if errors:
+            for e in errors:
+                st.error(e, icon="🚨")
+            st.stop()
+
+        # 데이터 정제
+        def safe_float(val):
+            try:
+                v = float(str(val).replace(",", "").strip())
+                return v if v > 0 else None
+            except Exception:
+                return None
+
+        thigh_len = safe_float(thigh_input)
+        desk_h    = safe_float(desk_input)
+        chair_h   = safe_float(chair_input)
+        sitting_h = safe_float(sitting_input)
+        budget    = safe_float(budget_raw)
 
         images_b64 = []
-
         if uploaded_files:
             for f in uploaded_files:
                 f.seek(0)
                 images_b64.append(image_to_base64(f))
 
+        final_complaints = []
+        for c in selected_complaints:
+            if c == "기타":
+                final_complaints.append(f"기타: {other_complaint.strip()}")
+            else:
+                final_complaints.append(c)
+
         data = {
-            "height": height,
-            "weight": weight,
-            "complaints": selected_complaints,
-            "images": images_b64 if images_b64 else None,
+            "height":          height,
+            "weight":          weight,
+            "complaints":      final_complaints,
+            "other_complaint": other_complaint.strip() if "기타" in selected_complaints else None,
+            "thigh_len":       thigh_len,
+            "desk_h":          desk_h,
+            "chair_h":         chair_h,
+            "sitting_h":       sitting_h,
+            "budget":          budget,
+            "images":          images_b64 if images_b64 else None,
         }
 
-        with st.spinner("분석 중입니다..."):
+        # GPT 호출
+        with st.spinner("🧚 척추요정이 분석 중입니다... 잠시만 기다려 주세요!"):
+            try:
+                system, content = build_prompt(data)
+                result = call_gpt(system, content)
 
-            system, content = build_prompt(data)
+                # ✅ session_state에 결과 저장 후 result 페이지로 이동
+                st.session_state.result     = result
+                st.session_state.desk_h     = desk_h
+                st.session_state.chair_h    = chair_h
+                st.session_state.page       = "result"
+                st.rerun()
 
-            result = call_gpt(system, content)
-
-            # ── 실제 상품 검색 ─────────────────────────────────────
-            product_queries = []
-
-            if any("허리" in c or "골반" in c for c in selected_complaints):
-                product_queries.append("시디즈 T50 정품")
-
-            if any("목" in c or "어깨" in c for c in selected_complaints):
-                product_queries.append("허먼밀러 에어론")
-
-            if any("눈" in c for c in selected_complaints):
-                product_queries.append("루나랩 모니터암")
-
-            if any("손목" in c for c in selected_complaints):
-                product_queries.append("로지텍 MX 팜레스트")
-
-            if not product_queries:
-                product_queries.append("인체공학 의자")
-
-            real_products = []
-
-            for q in product_queries:
-                real_products.extend(search_naver_product(q))
-
-            result["furniture_recommendation"] = real_products[:4]
-
-            # 결과 출력
-            st.success("분석 완료!")
-
-            st.subheader("📌 예상 문제")
-
-            st.write(result["problems"])
-
-            if result["photo_analysis"]:
-                st.subheader("📸 사진 분석")
-                st.write(result["photo_analysis"])
-
-            st.subheader("🪑 추천 책상/의자 높이")
-
-            st.write(
-                f"추천 의자 높이: {result['desk_chair_solution']['recommended_chair_height_cm']} cm"
-            )
-
-            st.write(
-                f"추천 책상 높이: {result['desk_chair_solution']['recommended_desk_height_cm']} cm"
-            )
-
-            st.write(result["desk_chair_solution"]["explanation"])
-
-            st.subheader("🛒 실제 구매 가능한 추천 제품")
-
-            for item in result["furniture_recommendation"]:
-
-                st.markdown(f"### {item['name']}")
-
-                st.write(item["reason"])
-
-                st.write(f"가격: {item['price_approx']}")
-
-                st.markdown(
-                    f"[구매 링크 바로가기]({item['url']})"
-                )
-
-            st.subheader("🖥️ 모니터 팁")
-
-            st.write(result["monitor_tips"])
+            except json.JSONDecodeError:
+                st.error("GPT 응답 파싱에 실패했습니다. 다시 시도해 주세요.", icon="❌")
+            except Exception as e:
+                st.error(f"오류가 발생했습니다: {str(e)}", icon="❌")

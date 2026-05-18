@@ -133,11 +133,16 @@ def render_results(result: dict, current_desk: float | None, current_chair: floa
             with st.expander(f"🛋️ {item.get('name', '제품명 없음')}  —  {item.get('price_approx', '')}"):
                 st.markdown(f"**추천 이유:** {item.get('reason', '—')}")
                 url = item.get("url", "")
-            if url and url.startswith("http"):
-                st.markdown(f"**구매 링크:** [바로가기 →]({url})")
-            else:
-                st.markdown("**구매 링크:** 링크 없음")
-
+                if (
+                    url
+                    and url.startswith("http")
+                    and "search" not in url.lower()
+                    and "category" not in url.lower()
+                    and "brand" not in url.lower()
+                ):
+                    st.markdown(f"**구매 링크:** [바로가기 →]({url})")
+                else:
+                    st.markdown("**구매 링크:** 정확한 상품 링크를 찾지 못했습니다.")
     elif not furniture_note:
         st.success("현재 가구 높이 조절만으로 충분히 해결 가능합니다! 별도 구매 불필요 🎉", icon="✅")
 
