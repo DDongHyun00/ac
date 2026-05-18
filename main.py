@@ -140,13 +140,16 @@ def build_prompt(data: dict) -> tuple:
   },
   "furniture_recommendation": [
     {
-      "name": "...",
-      "reason": "...",
-      "price_approx": "...",
-      "url": "..."
+      "category": "의자 또는 책상 또는 모니터받침대 등",
+      "spec_summary": "추천 스펙 요약 (예: 높이조절 범위 40~55cm, 요추지지대 필수, 팔걸이 조절 가능)",
+      "reason": "이 스펙이 필요한 이유",
+      "price_range": "예상 가격대 (예: 15만~30만원)",
+      "search_keyword": "네이버쇼핑 검색용 키워드 (예: 높이조절 사무용의자 요추지지대)",
+      "naver_url": "https://search.shopping.naver.com/search/all?query=높이조절+사무용의자+요추지지대",
+      "coupang_url": "https://www.coupang.com/np/search?q=높이조절+사무용의자+요추지지대"
     }
   ],
-  "furniture_note": "...(예산 초과 또는 조절만으로 해결 가능 시 설명)",
+  "furniture_note": "...(예산 초과 또는 조절만으로 해결 가능 시 설명, 해당 없으면 null)",
   "monitor_tips": "..."
 }
 
@@ -157,10 +160,16 @@ def build_prompt(data: dict) -> tuple:
    - 의자 높이 계산 기준: 허벅지 길이 또는 키×0.25
    - 책상 높이 계산 기준: 의자 높이 + 앉은키×0.45 또는 키×0.43 추정
 4. furniture_recommendation: 현재 책상/의자 높이가 권장 범위를 벗어나고 조절이 불가한 경우에만 추천.
-   예산이 있을 때: 예산 내 실제 한국 판매 제품 추천
-   예산이 없을 때: 실제 판매하는 일반적인 가격대 제품 추천
-   예산 초과 시: furniture_note에 명시하고 빈 배열 반환
+   - 절대로 특정 브랜드명이나 모델명, 제품 상세 페이지 URL을 지어내지 마세요.
+   - 대신 필요한 스펙과 카테고리를 명확히 설명하고, 실제로 동작하는 네이버쇼핑/쿠팡 검색 URL을 제공하세요.
+   - naver_url: https://search.shopping.naver.com/search/all?query=검색어 (검색어는 URL 인코딩, 공백은 + 또는 %20)
+   - coupang_url: https://www.coupang.com/np/search?q=검색어 (검색어는 URL 인코딩)
+   - 예산이 있을 때: search_keyword와 price_range를 예산에 맞게 구체화
+   - 예산이 없을 때: 일반적인 가격대로 price_range 제시
+   - 예산 초과 시: furniture_note에 명시하고 빈 배열([]) 반환
 5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
+
+⚠️ 중요: furniture_recommendation의 url 필드에 절대로 iloom.com, 코웨이, 시디즈 등 특정 쇼핑몰의 실제 제품 상세 URL을 만들어내지 마세요. 존재하지 않는 URL은 404 오류를 유발합니다. 반드시 검색 결과 페이지 URL(naver_url, coupang_url)만 사용하세요.
 """
 
     lines = [
