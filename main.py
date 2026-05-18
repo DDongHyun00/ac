@@ -178,10 +178,6 @@ def build_prompt(data: dict) -> tuple:
    - https://www.ikea.com/kr
    - https://shopping.naver.com
 
-   올바른 예시:
-   - https://www.sidiz.com/product/detail/12345
-   - https://www.ikea.com/kr/ko/p/product-name-30512345/
-
    존재하지 않는 URL을 추측해서 생성하지 마라.
    정확한 URL을 찾지 못하면 "url": "" 반환.
 
