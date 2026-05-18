@@ -191,6 +191,7 @@ def build_prompt(data: dict) -> tuple:
 5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
 6. 모든 URL은 실제 존재하는 링크만 반환해야 한다.
 7. 확신이 없는 링크는 생성하지 말고 빈 문자열("") 반환.
+8. 추천 제품은 사용자 상황에 따라 다양하게 선택한다. 같은 브랜드나 제품만 반복 추천하지 마라 사용자 예산과 증상에 따라 다른 제품을 추천한다.
 """
 
     lines = [
@@ -246,7 +247,7 @@ def call_gpt(system: str, content) -> dict:
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
-        temperature=0.4,
+        temperature=1.0,
         max_tokens=2500,
         response_format={"type": "json_object"},
     )
