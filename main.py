@@ -121,55 +121,240 @@ def image_to_base64(uploaded_file) -> str:
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
 
+# ── 하드코딩 제품 DB ─────────────────────────────────────────────────────────
+PRODUCT_DB = {
+    "chairs": [
+        {
+            "id": "chair_1",
+            "name": "시디즈 T50 HF (메쉬 의자)",
+            "price": 279000,
+            "price_str": "279,000원",
+            "height_range_cm": [38, 47],   # 좌판 높이 조절 범위
+            "features": ["높이조절", "요추지지대", "목받침", "팔걸이4D조절", "메쉬등판"],
+            "url": "https://kr.sidiz.com/pages/t50",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+T50+HF",
+            "tags": ["허리", "목", "어깨", "기본", "가성비"],
+        },
+        {
+            "id": "chair_2",
+            "name": "시디즈 T50 HLDA (풀옵션 메쉬 의자)",
+            "price": 359000,
+            "price_str": "359,000원",
+            "height_range_cm": [43, 50],
+            "features": ["높이조절", "요추지지대", "목받침조절", "팔걸이4D조절", "좌판깊이조절", "메쉬등판", "리미티드틸팅"],
+            "url": "https://kr.sidiz.com/pages/t50",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+T50+HLDA",
+            "tags": ["허리", "목", "어깨", "골반", "풀옵션", "고급"],
+        },
+        {
+            "id": "chair_3",
+            "name": "시디즈 탭스퀘어 (가성비 의자)",
+            "price": 199000,
+            "price_str": "199,000원",
+            "height_range_cm": [40, 50],
+            "features": ["높이조절", "요추지지대", "팔걸이조절"],
+            "url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+%ED%83%AD%EC%8A%A4%ED%80%98%EC%96%B4",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+%ED%83%AD%EC%8A%A4%EC%9D%98%EC%96%B4",
+            "tags": ["허리", "가성비", "입문"],
+        },
+        {
+            "id": "chair_4",
+            "name": "시디즈 T50 AIR HLDA (에어메쉬 풀옵션)",
+            "price": 439000,
+            "price_str": "439,000원",
+            "height_range_cm": [43, 50],
+            "features": ["에어메쉬등판", "높이조절", "요추지지대", "목받침조절", "팔걸이4D", "좌판깊이조절", "틸팅"],
+            "url": "https://kr.sidiz.com/pages/t50",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+T50+AIR+HLDA",
+            "tags": ["허리", "목", "어깨", "골반", "프리미엄", "통기성"],
+        },
+    ],
+    "desks": [
+        {
+            "id": "desk_1",
+            "name": "데스커 컴퓨터책상 1200×600 (고정형)",
+            "price": 159000,
+            "price_str": "159,000원",
+            "height_cm": 72,              # 고정 높이
+            "height_adjustable": False,
+            "features": ["배선홀", "깔끔한디자인", "무료배송"],
+            "url": "https://www.desker.co.kr/products/category?subCateNo=10&searchType=dtl&sort=best",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EB%8D%B0%EC%8A%A4%EC%BB%A4+%EC%BB%B4%ED%93%A8%ED%84%B0%EC%B1%85%EC%83%81",
+            "tags": ["고정형", "가성비"],
+        },
+        {
+            "id": "desk_2",
+            "name": "데스커 알파 모션 스탠딩 책상 1400×700 (전동 높이조절)",
+            "price": 538000,
+            "price_str": "538,000원",
+            "height_range_cm": [71, 116],  # 높이 조절 범위
+            "height_adjustable": True,
+            "features": ["전동높이조절", "스탠딩가능", "LINAK모터", "충돌방지", "높이기억4단계", "배선선반"],
+            "url": "https://www.desker.co.kr/products/category?subCateNo=15&searchType=dtl&sort=best",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EB%8D%B0%EC%8A%A4%EC%BB%A4+%EB%AA%A8%EC%85%98+%EC%8A%A4%ED%83%A0%EB%94%A9%EC%B1%85%EC%83%81",
+            "tags": ["전동높이조절", "스탠딩", "허리", "프리미엄"],
+        },
+        {
+            "id": "desk_3",
+            "name": "데스커 모션 컨트롤스위치 스탠딩 책상 1800×700",
+            "price": 698000,
+            "price_str": "698,000원",
+            "height_range_cm": [68, 113],
+            "height_adjustable": True,
+            "features": ["전동높이조절", "스탠딩가능", "넓은작업공간", "LINAK모터", "높이기억"],
+            "url": "https://www.desker.co.kr/products/category?subCateNo=15&searchType=dtl&sort=best",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EB%8D%B0%EC%8A%A4%EC%BB%A4+%EB%AA%A8%EC%85%98+%EC%8A%A4%ED%83%A0%EB%94%A9+1800",
+            "tags": ["전동높이조절", "스탠딩", "대형", "허리", "프리미엄"],
+        },
+    ],
+    "monitor_arms": [
+        {
+            "id": "arm_1",
+            "name": "카멜마운트 MOS1 싱글 모니터암",
+            "price": 65000,
+            "price_str": "65,000원",
+            "features": ["상하좌우각도조절", "높이조절", "VESA75/100호환", "최대9kg"],
+            "url": "https://www.camelmountmall.com/goods/goods_list.php?cateCd=036001",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%B9%B4%EB%A9%9C%EB%A7%88%EC%9A%B4%ED%8A%B8+MOS1+%EB%AA%A8%EB%8B%88%ED%84%B0%EC%95%94",
+            "tags": ["눈피로", "목", "어깨", "모니터높이조절", "싱글"],
+        },
+        {
+            "id": "arm_2",
+            "name": "카멜마운트 CA-1 싱글 모니터암 (베스트셀러)",
+            "price": 29000,
+            "price_str": "29,000원",
+            "features": ["상하각도조절", "VESA75/100호환", "최대7kg", "가성비"],
+            "url": "https://prod.danawa.com/info/?pcode=13115675",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%B9%B4%EB%A9%9C%EB%A7%88%EC%9A%B4%ED%8A%B8+CA-1+%EB%AA%A8%EB%8B%88%ED%84%B0%EC%95%94",
+            "tags": ["눈피로", "목", "모니터높이조절", "가성비", "싱글"],
+        },
+    ],
+    "footrests": [
+        {
+            "id": "foot_1",
+            "name": "발편한 각도조절 발받침대 (사무용)",
+            "price": 25000,
+            "price_str": "25,000원",
+            "features": ["각도조절", "미끄럼방지", "높이보정"],
+            "url": "https://www.coupang.com/np/search?q=%EC%82%AC%EB%AC%B4%EC%9A%A9+%EB%B0%9C%EB%B0%9B%EC%B9%A8%EB%8C%80+%EA%B0%81%EB%8F%84%EC%A1%B0%EC%A0%88",
+            "coupang_url": "https://www.coupang.com/np/search?q=%EC%82%AC%EB%AC%B4%EC%9A%A9+%EB%B0%9C%EB%B0%9B%EC%B9%A8%EB%8C%80",
+            "tags": ["무릎", "발목", "다리저림", "키작은", "책상높이보정"],
+        },
+    ],
+    "lumbar_supports": [
+        {
+            "id": "lumbar_1",
+            "name": "메모리폼 허리쿠션 요추받침대",
+            "price": 35000,
+            "price_str": "35,000원",
+            "features": ["메모리폼", "벨트고정", "허리곡선지지"],
+            "url": "https://www.coupang.com/np/search?q=%ED%97%88%EB%A6%AC%EC%BF%A0%EC%85%98+%EC%9A%94%EC%B6%94%EB%B0%9B%EC%B9%A8%EB%8C%80+%EC%82%AC%EB%AC%B4%EC%9A%A9",
+            "coupang_url": "https://www.coupang.com/np/search?q=%ED%97%88%EB%A6%AC%EC%BF%A0%EC%85%98+%EC%9A%94%EC%B6%94%EB%B0%9B%EC%B9%A8%EB%8C%80",
+            "tags": ["허리", "보조용품", "가성비"],
+        },
+    ],
+}
+
+def get_product_catalog_text() -> str:
+    """GPT에게 넘길 제품 카탈로그 텍스트 생성"""
+    lines = ["## 추천 가능한 제품 카탈로그 (이 목록에서만 선택할 것)"]
+
+    lines.append("\n### [의자]")
+    for p in PRODUCT_DB["chairs"]:
+        lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 좌판높이: {p.get('height_range_cm', ['?'])[0]}~{p.get('height_range_cm', ['?', '?'])[1]}cm | 태그: {', '.join(p['tags'])}")
+
+    lines.append("\n### [책상]")
+    for p in PRODUCT_DB["desks"]:
+        if p["height_adjustable"]:
+            h = f"높이조절 {p['height_range_cm'][0]}~{p['height_range_cm'][1]}cm"
+        else:
+            h = f"고정높이 {p['height_cm']}cm"
+        lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | {h} | 태그: {', '.join(p['tags'])}")
+
+    lines.append("\n### [모니터암]")
+    for p in PRODUCT_DB["monitor_arms"]:
+        lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
+
+    lines.append("\n### [발받침대]")
+    for p in PRODUCT_DB["footrests"]:
+        lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
+
+    lines.append("\n### [허리쿠션]")
+    for p in PRODUCT_DB["lumbar_supports"]:
+        lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
+
+    return "\n".join(lines)
+
+def resolve_products(product_ids: list) -> list:
+    """GPT가 고른 id 목록을 실제 제품 정보로 변환"""
+    all_products = (
+        PRODUCT_DB["chairs"]
+        + PRODUCT_DB["desks"]
+        + PRODUCT_DB["monitor_arms"]
+        + PRODUCT_DB["footrests"]
+        + PRODUCT_DB["lumbar_supports"]
+    )
+    id_map = {p["id"]: p for p in all_products}
+    result = []
+    for pid in product_ids:
+        if pid in id_map:
+            p = id_map[pid]
+            result.append({
+                "name": p["name"],
+                "reason": "",   # GPT가 채울 예정
+                "price_approx": p["price_str"],
+                "url": p["url"],
+                "coupang_url": p.get("coupang_url", p["url"]),
+            })
+    return result
+
+
 # ── GPT-4o 프롬프트 생성 ─────────────────────────────────────────────────────
 def build_prompt(data: dict) -> tuple:
     has_images = bool(data.get("images"))
     has_budget = data.get("budget") is not None
 
-    system = """당신은 척추·자세 교정 전문가이자 인체공학(에르고노믹스) 컨설턴트입니다.
-사용자의 신체 정보와 불편 증상을 바탕으로 다음 순서로 **한국어**로 답변하세요.
+    catalog_text = get_product_catalog_text()
+
+    system = f"""당신은 척추·자세 교정 전문가이자 인체공학(에르고노믹스) 컨설턴트입니다.
+사용자의 신체 정보와 불편 증상을 바탕으로 **한국어**로 답변하세요.
+
+{catalog_text}
 
 [출력 형식 – 반드시 아래 JSON만 반환, 코드블록(```) 없이]
-{
+{{
   "problems": "...",
   "photo_analysis": "...(사진 없으면 null)",
-  "desk_chair_solution": {
+  "desk_chair_solution": {{
     "recommended_chair_height_cm": 숫자,
     "recommended_desk_height_cm": 숫자,
     "explanation": "..."
-  },
+  }},
   "furniture_recommendation": [
-    {
-      "category": "의자 또는 책상 또는 모니터받침대 등",
-      "spec_summary": "추천 스펙 요약 (예: 높이조절 범위 40~55cm, 요추지지대 필수, 팔걸이 조절 가능)",
-      "reason": "이 스펙이 필요한 이유",
-      "price_range": "예상 가격대 (예: 15만~30만원)",
-      "search_keyword": "네이버쇼핑 검색용 키워드 (예: 높이조절 사무용의자 요추지지대)",
-      "naver_url": "https://search.shopping.naver.com/search/all?query=높이조절+사무용의자+요추지지대",
-      "coupang_url": "https://www.coupang.com/np/search?q=높이조절+사무용의자+요추지지대"
-    }
+    {{
+      "product_id": "카탈로그의 id 값 (예: chair_2)",
+      "reason": "이 사용자에게 이 제품이 필요한 구체적 이유"
+    }}
   ],
-  "furniture_note": "...(예산 초과 또는 조절만으로 해결 가능 시 설명, 해당 없으면 null)",
+  "furniture_note": "...(예산 초과 또는 조절만으로 해결 가능 시 설명, 해당없으면 null)",
   "monitor_tips": "..."
-}
+}}
 
 규칙:
-1. problems: 입력된 불편사항과 신체 데이터를 바탕으로 예상 문제점을 설명 (사진 있으면 사진 분석 반영)
-2. photo_analysis: 사진이 있을 때만 거북목/디스크/골반전방경사/척추측만 등 자세 문제를 분석, 없으면 null
-3. desk_chair_solution: 허벅지 길이·앉은키 데이터가 있으면 정밀 계산, 없으면 키 기반 표준 추정값 제공
-   - 의자 높이 계산 기준: 허벅지 길이 또는 키×0.25
-   - 책상 높이 계산 기준: 의자 높이 + 앉은키×0.45 또는 키×0.43 추정
-4. furniture_recommendation: 현재 책상/의자 높이가 권장 범위를 벗어나고 조절이 불가한 경우에만 추천.
-   - 절대로 특정 브랜드명이나 모델명, 제품 상세 페이지 URL을 지어내지 마세요.
-   - 대신 필요한 스펙과 카테고리를 명확히 설명하고, 실제로 동작하는 네이버쇼핑/쿠팡 검색 URL을 제공하세요.
-   - naver_url: https://search.shopping.naver.com/search/all?query=검색어 (검색어는 URL 인코딩, 공백은 + 또는 %20)
-   - coupang_url: https://www.coupang.com/np/search?q=검색어 (검색어는 URL 인코딩)
-   - 예산이 있을 때: search_keyword와 price_range를 예산에 맞게 구체화
-   - 예산이 없을 때: 일반적인 가격대로 price_range 제시
-   - 예산 초과 시: furniture_note에 명시하고 빈 배열([]) 반환
-5. monitor_tips: 모니터 눈높이와 적정 거리(40~70cm) 관련 구체적 팁
-
-⚠️ 중요: furniture_recommendation의 url 필드에 절대로 iloom.com, 코웨이, 시디즈 등 특정 쇼핑몰의 실제 제품 상세 URL을 만들어내지 마세요. 존재하지 않는 URL은 404 오류를 유발합니다. 반드시 검색 결과 페이지 URL(naver_url, coupang_url)만 사용하세요.
+1. problems: 입력된 불편사항과 신체 데이터를 바탕으로 예상 문제점 설명 (사진 있으면 반영)
+2. photo_analysis: 사진 있을 때만 거북목/디스크/골반전방경사/척추측만 분석, 없으면 null
+3. desk_chair_solution: 허벅지 길이·앉은키 있으면 정밀 계산, 없으면 키 기반 추정
+   - 의자 높이: 허벅지 길이 또는 키×0.25
+   - 책상 높이: 의자 높이 + 앉은키×0.45 또는 키×0.43
+4. furniture_recommendation:
+   - 반드시 위 카탈로그의 id만 사용할 것 (임의 제품 추천 절대 금지)
+   - 현재 의자/책상 높이가 권장 범위를 벗어나거나 조절 불가 시 의자/책상 추천
+   - 눈 피로·목 통증 있으면 모니터암 추천
+   - 의자가 너무 높아 발이 뜨는 경우 발받침대 추천
+   - 허리 통증인데 의자 교체 예산이 없으면 허리쿠션 추천
+   - 예산 있을 때: 예산 내 제품만 선택 (price 필드 기준)
+   - 예산 초과 제품만 있으면: 빈 배열 반환 + furniture_note에 설명
+5. monitor_tips: 모니터 눈높이·거리(40~70cm) 팁
 """
 
     lines = [
@@ -229,7 +414,32 @@ def call_gpt(system: str, content) -> dict:
         max_tokens=2500,
         response_format={"type": "json_object"},
     )
-    return json.loads(response.choices[0].message.content)
+    raw = json.loads(response.choices[0].message.content)
+
+    # furniture_recommendation: product_id → 실제 제품 정보로 변환
+    all_products = (
+        PRODUCT_DB["chairs"]
+        + PRODUCT_DB["desks"]
+        + PRODUCT_DB["monitor_arms"]
+        + PRODUCT_DB["footrests"]
+        + PRODUCT_DB["lumbar_supports"]
+    )
+    id_map = {p["id"]: p for p in all_products}
+
+    resolved = []
+    for item in raw.get("furniture_recommendation", []):
+        pid = item.get("product_id", "")
+        if pid in id_map:
+            p = id_map[pid]
+            resolved.append({
+                "name": p["name"],
+                "reason": item.get("reason", ""),
+                "price_approx": p["price_str"],
+                "url": p["url"],
+                "coupang_url": p.get("coupang_url", p["url"]),
+            })
+    raw["furniture_recommendation"] = resolved
+    return raw
 
 
 # ── 메인 show() ──────────────────────────────────────────────────────────────
