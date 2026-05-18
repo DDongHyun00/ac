@@ -20,6 +20,25 @@ def inject_css():
         margin-left: auto !important;
         margin-right: auto !important;
     }
+    .main-header {
+        text-align: center;
+        padding: 2.5rem 0 0.5rem 0;
+        font-size: 3.2rem;
+        font-weight: 900;
+        background: linear-gradient(90deg, #667eea, #a855f7, #22c55e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+    }
+                
+    .sub-header {
+        text-align: center;
+        color: #9ca3af;
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+        letter-spacing: 0.5px;
+    }
     .result-wrapper {
         background: rgba(255,255,255,0.97);
         border-radius: 22px;
@@ -42,7 +61,7 @@ def inject_css():
     .tip-box {
         background: linear-gradient(135deg, #fffbeb, #fef9c3);
         border-radius: 14px;
-        padding: 1.1rem 1.5rem;
+        padding: 0.7rem 0.5rem 0.5rem 0.7rem;
         border-left: 5px solid #fbbf24;
         margin-top: 1.4rem;
     }
@@ -50,7 +69,6 @@ def inject_css():
         color: #b45309;
         font-size: 1.05rem;
         font-weight: 800;
-        margin-bottom: 0.5rem;
     }
     .stButton > button {
         background: linear-gradient(90deg, #667eea 0%, #a855f7 100%);
@@ -73,7 +91,6 @@ def inject_css():
 
 # ── 결과 렌더링 ──────────────────────────────────────────────────────────────
 def render_results(result: dict, current_desk: float | None, current_chair: float | None):
-    st.markdown('<div class="result-wrapper">', unsafe_allow_html=True)
 
     # 1) 사진 분석
     if result.get("photo_analysis"):
@@ -133,16 +150,10 @@ def render_results(result: dict, current_desk: float | None, current_chair: floa
             with st.expander(f"🛋️ {item.get('name', '제품명 없음')}  —  {item.get('price_approx', '')}"):
                 st.markdown(f"**추천 이유:** {item.get('reason', '—')}")
                 url = item.get("url", "")
-                if (
-                    url
-                    and url.startswith("http")
-                    and "search" not in url.lower()
-                    and "category" not in url.lower()
-                    and "brand" not in url.lower()
-                ):
+                if url and url.startswith("http"):
                     st.markdown(f"**구매 링크:** [바로가기 →]({url})")
                 else:
-                    st.markdown("**구매 링크:** 정확한 상품 링크를 찾지 못했습니다.")
+                    st.markdown(f"**참고:** {url}")
     elif not furniture_note:
         st.success("현재 가구 높이 조절만으로 충분히 해결 가능합니다! 별도 구매 불필요 🎉", icon="✅")
 
@@ -165,6 +176,19 @@ def render_results(result: dict, current_desk: float | None, current_chair: floa
 # ── 메인 show() ──────────────────────────────────────────────────────────────
 def show():
     inject_css()
+    
+    st.set_page_config(
+        page_title="척추요정 🧚",
+        page_icon="🧚",
+        layout="wide",
+        initial_sidebar_state="collapsed",
+    )
+
+    st.markdown('<div class="main-header">🧚 척추요정</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sub-header">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>',
+        unsafe_allow_html=True,
+    )
 
     # ✅ 결과 데이터가 없으면 메인 페이지로 자동 복귀
     if "result" not in st.session_state:
@@ -173,7 +197,7 @@ def show():
         st.rerun()
         return
 
-    st.markdown('<div class="main-header">🧚 척추요정 분석 결과</div>', unsafe_allow_html=True)
+
     st.success("분석 완료! 아래 결과를 확인하세요 ✨", icon="🎉")
 
     # 결과 렌더링
