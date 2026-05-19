@@ -10,96 +10,195 @@ import io
 def inject_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Noto Sans KR', sans-serif;
+        font-family: 'DM Sans', sans-serif;
     }
+
+    /* ── 배경 & 전체 레이아웃 ── */
     .stApp {
-        background: linear-gradient(135deg, #f0f4ff 0%, #faf0ff 50%, #f0fff8 100%);
+        background-color: #F5F2EC;
     }
     .block-container {
-        max-width: 900px !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
+        max-width: 780px !important;
+        padding: 0 2rem 4rem 2rem !important;
+        margin: 0 auto !important;
     }
-    .main-header {
-        text-align: center;
-        padding: 2.5rem 0 0.5rem 0;
-        font-size: 3.2rem;
-        font-weight: 900;
-        background: linear-gradient(90deg, #667eea, #a855f7, #22c55e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: -1px;
+
+    /* ── 헤더 ── */
+    .page-header {
+        padding: 3.5rem 0 0.4rem 0;
+        border-bottom: 2px solid #1a1a1a;
+        margin-bottom: 0.35rem;
     }
-    .sub-header {
-        text-align: center;
-        color: #9ca3af;
-        font-size: 1rem;
-        margin-bottom: 2.5rem;
-        letter-spacing: 0.5px;
+    .page-header-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 0.6rem;
     }
-    .section-card {
-        background: rgba(255,255,255,0.88);
-        border-radius: 20px;
-        padding: 0.9rem 1rem;
-        margin-bottom: 1.4rem;
-        box-shadow: 0 4px 20px rgba(102,126,234,0.09);
-        border: 1.5px solid rgba(102,126,234,0.12);
-        backdrop-filter: blur(8px);
+    .page-header-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 3.8rem;
+        line-height: 1.0;
+        color: #1a1a1a;
+        letter-spacing: -0.02em;
     }
-    .section-title {
-        font-size: 1.12rem;
+    .page-header-title em {
+        font-style: italic;
+        color: #1a1a1a;
+    }
+    .page-header-accent {
+        display: inline-block;
+        background: #C8F04B;
+        color: #1a1a1a;
+        font-style: normal;
+        padding: 0 6px;
+        border-radius: 4px;
+    }
+    .page-sub {
+        font-size: 0.88rem;
+        color: #888;
+        margin-top: 0.6rem;
+        margin-bottom: 2.6rem;
+        font-weight: 300;
+        letter-spacing: 0.01em;
+    }
+
+    /* ── 섹션 레이블 ── */
+    .section-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #aaa;
+        margin-bottom: 0.9rem;
+        margin-top: 2.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .section-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #ddd;
+    }
+    .badge {
+        font-size: 0.6rem;
         font-weight: 700;
-        color: #4338ca;
+        letter-spacing: 0.08em;
+        padding: 2px 8px;
+        border-radius: 999px;
+        vertical-align: middle;
     }
     .badge-req {
-        display: inline-block;
-        background: #ef4444;
-        color: #fff;
-        border-radius: 999px;
-        padding: 1px 9px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        margin-left: 7px;
-        vertical-align: middle;
+        background: #1a1a1a;
+        color: #C8F04B;
     }
     .badge-opt {
-        display: inline-block;
-        background: #22c55e;
-        color: #fff;
-        border-radius: 999px;
-        padding: 1px 9px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        margin-left: 7px;
-        vertical-align: middle;
+        background: #e8e4db;
+        color: #888;
     }
+
+    /* ── 입력 필드 스타일링 ── */
+    div[data-testid="stNumberInput"] input,
+    div[data-testid="stTextInput"] input {
+        background: #fff !important;
+        border: 1.5px solid #e0dbd0 !important;
+        border-radius: 10px !important;
+        color: #1a1a1a !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.92rem !important;
+        padding: 0.6rem 0.85rem !important;
+        transition: border-color 0.2s !important;
+    }
+    div[data-testid="stNumberInput"] input:focus,
+    div[data-testid="stTextInput"] input:focus {
+        border-color: #C8F04B !important;
+        box-shadow: 0 0 0 3px rgba(200,240,75,0.18) !important;
+        outline: none !important;
+    }
+    div[data-testid="stNumberInput"] label,
+    div[data-testid="stTextInput"] label {
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        color: #555 !important;
+        letter-spacing: 0.01em !important;
+    }
+
+    /* ── 체크박스 ── */
+    div[data-testid="stCheckbox"] label {
+        font-size: 0.87rem !important;
+        color: #333 !important;
+        font-weight: 400 !important;
+    }
+    div[data-testid="stCheckbox"] span[data-testid="stMarkdownContainer"] p {
+        color: #333 !important;
+    }
+    .stCheckbox > label > div[data-testid="stMarkdownContainer"] > p {
+        font-size: 0.87rem;
+    }
+
+    /* ── 파일 업로더 ── */
+    div[data-testid="stFileUploader"] {
+        background: #fff !important;
+        border: 1.5px dashed #ccc !important;
+        border-radius: 14px !important;
+        padding: 0.5rem !important;
+    }
+    div[data-testid="stFileUploader"]:hover {
+        border-color: #C8F04B !important;
+    }
+    div[data-testid="stFileUploader"] section {
+        background: transparent !important;
+    }
+
+    /* ── 분석 버튼 ── */
     .stButton > button {
-        background: linear-gradient(90deg, #667eea 0%, #a855f7 100%);
-        color: white !important;
-        border: none;
-        border-radius: 50px;
-        padding: 0.8rem 2.5rem;
-        font-size: 1.15rem;
-        font-weight: 800;
-        width: 100%;
-        transition: all 0.3s;
-        box-shadow: 0 5px 20px rgba(102,126,234,0.38);
-        letter-spacing: 1px;
+        background: #1a1a1a !important;
+        color: #C8F04B !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.85rem 2.2rem !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.92rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.04em !important;
+        width: 100% !important;
+        transition: background 0.2s, transform 0.15s !important;
+        cursor: pointer !important;
     }
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(102,126,234,0.50);
+        background: #2d2d2d !important;
+        transform: translateY(-1px) !important;
     }
-    div[data-testid="stFileUploader"] {
-        background: rgba(255,255,255,0.7);
-        border-radius: 14px;
-        padding: 0.5rem;
+    .stButton > button:active {
+        transform: translateY(0) !important;
+    }
+
+    /* ── 캡션 ── */
+    .stCaption, div[data-testid="stCaption"] {
+        color: #aaa !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* ── 에러 ── */
+    div[data-testid="stAlert"] {
+        border-radius: 12px !important;
+        border: none !important;
+    }
+
+    /* ── 텍스트 헬퍼 ── */
+    .helper-text {
+        font-size: 0.78rem;
+        color: #bbb;
+        margin-top: -0.4rem;
+        margin-bottom: 0.8rem;
+        font-weight: 300;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -129,7 +228,7 @@ PRODUCT_DB = {
             "name": "시디즈 T50 HF (메쉬 의자)",
             "price": 279000,
             "price_str": "279,000원",
-            "height_range_cm": [38, 47],   # 좌판 높이 조절 범위
+            "height_range_cm": [38, 47],
             "features": ["높이조절", "요추지지대", "목받침", "팔걸이4D조절", "메쉬등판"],
             "url": "https://kr.sidiz.com/pages/t50",
             "coupang_url": "https://www.coupang.com/np/search?q=%EC%8B%9C%EB%94%94%EC%A6%88+T50+HF",
@@ -175,7 +274,7 @@ PRODUCT_DB = {
             "name": "데스커 컴퓨터책상 1200×600 (고정형)",
             "price": 159000,
             "price_str": "159,000원",
-            "height_cm": 72,              # 고정 높이
+            "height_cm": 72,
             "height_adjustable": False,
             "features": ["배선홀", "깔끔한디자인", "무료배송"],
             "url": "https://www.desker.co.kr/products/category?subCateNo=10&searchType=dtl&sort=best",
@@ -187,7 +286,7 @@ PRODUCT_DB = {
             "name": "데스커 알파 모션 스탠딩 책상 1400×700 (전동 높이조절)",
             "price": 538000,
             "price_str": "538,000원",
-            "height_range_cm": [71, 116],  # 높이 조절 범위
+            "height_range_cm": [71, 116],
             "height_adjustable": True,
             "features": ["전동높이조절", "스탠딩가능", "LINAK모터", "충돌방지", "높이기억4단계", "배선선반"],
             "url": "https://www.desker.co.kr/products/category?subCateNo=15&searchType=dtl&sort=best",
@@ -256,13 +355,10 @@ PRODUCT_DB = {
 }
 
 def get_product_catalog_text() -> str:
-    """GPT에게 넘길 제품 카탈로그 텍스트 생성"""
     lines = ["## 추천 가능한 제품 카탈로그 (이 목록에서만 선택할 것)"]
-
     lines.append("\n### [의자]")
     for p in PRODUCT_DB["chairs"]:
         lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 좌판높이: {p.get('height_range_cm', ['?'])[0]}~{p.get('height_range_cm', ['?', '?'])[1]}cm | 태그: {', '.join(p['tags'])}")
-
     lines.append("\n### [책상]")
     for p in PRODUCT_DB["desks"]:
         if p["height_adjustable"]:
@@ -270,50 +366,22 @@ def get_product_catalog_text() -> str:
         else:
             h = f"고정높이 {p['height_cm']}cm"
         lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | {h} | 태그: {', '.join(p['tags'])}")
-
     lines.append("\n### [모니터암]")
     for p in PRODUCT_DB["monitor_arms"]:
         lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
-
     lines.append("\n### [발받침대]")
     for p in PRODUCT_DB["footrests"]:
         lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
-
     lines.append("\n### [허리쿠션]")
     for p in PRODUCT_DB["lumbar_supports"]:
         lines.append(f"- id: {p['id']} | {p['name']} | {p['price_str']} | 태그: {', '.join(p['tags'])}")
-
     return "\n".join(lines)
-
-def resolve_products(product_ids: list) -> list:
-    """GPT가 고른 id 목록을 실제 제품 정보로 변환"""
-    all_products = (
-        PRODUCT_DB["chairs"]
-        + PRODUCT_DB["desks"]
-        + PRODUCT_DB["monitor_arms"]
-        + PRODUCT_DB["footrests"]
-        + PRODUCT_DB["lumbar_supports"]
-    )
-    id_map = {p["id"]: p for p in all_products}
-    result = []
-    for pid in product_ids:
-        if pid in id_map:
-            p = id_map[pid]
-            result.append({
-                "name": p["name"],
-                "reason": "",   # GPT가 채울 예정
-                "price_approx": p["price_str"],
-                "url": p["url"],
-                "coupang_url": p.get("coupang_url", p["url"]),
-            })
-    return result
 
 
 # ── GPT-4o 프롬프트 생성 ─────────────────────────────────────────────────────
 def build_prompt(data: dict) -> tuple:
     has_images = bool(data.get("images"))
     has_budget = data.get("budget") is not None
-
     catalog_text = get_product_catalog_text()
 
     system = f"""당신은 척추·자세 교정 전문가이자 인체공학(에르고노믹스) 컨설턴트입니다.
@@ -416,7 +484,6 @@ def call_gpt(system: str, content) -> dict:
     )
     raw = json.loads(response.choices[0].message.content)
 
-    # furniture_recommendation: product_id → 실제 제품 정보로 변환
     all_products = (
         PRODUCT_DB["chairs"]
         + PRODUCT_DB["desks"]
@@ -446,23 +513,27 @@ def call_gpt(system: str, content) -> dict:
 def show():
     inject_css()
 
-    # 페이지 설정
     st.set_page_config(
-        page_title="척추요정 🧚",
+        page_title="척추요정",
         page_icon="🧚",
         layout="wide",
-        initial_sidebar_state="collapsed",
+        initial_sidebar_bar="collapsed",
     )
 
-    st.markdown('<div class="main-header">🧚 척추요정</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="sub-header">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>',
-        unsafe_allow_html=True,
-    )
+    # ── 헤더 ──
+    st.markdown("""
+    <div class="page-header">
+        <div class="page-header-eyebrow">Posture Analysis</div>
+        <div class="page-header-title">
+            척추<span class="page-header-accent">요정</span>
+        </div>
+    </div>
+    <div class="page-sub">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>
+    """, unsafe_allow_html=True)
 
-    # ── 필수 입력 ──────────────────────────────────────────────────────────
+    # ── 기본 정보 ──
     st.markdown(
-        '<div class="section-card"><div class="section-title">📋 기본 정보 <span class="badge-req">필수</span></div></div>',
+        '<div class="section-label">기본 정보 <span class="badge badge-req">필수</span></div>',
         unsafe_allow_html=True,
     )
     col1, col2 = st.columns(2)
@@ -471,7 +542,7 @@ def show():
     with col2:
         weight = st.number_input("몸무게 (kg)", min_value=20, max_value=200, value=65, step=1)
 
-    st.markdown("**불편사항** (해당하는 것 모두 선택)")
+    st.markdown('<div class="section-label">불편사항 <span class="badge badge-req">1개 이상 선택</span></div>', unsafe_allow_html=True)
     complaint_options = [
         "목 통증", "허리 통증", "어깨 통증",
         "골반 통증", "무릎/발목 통증", "두통",
@@ -487,44 +558,38 @@ def show():
     other_complaint = ""
     if "기타" in selected_complaints:
         other_complaint = st.text_input(
-            "기타 불편사항을 직접 입력하세요",
-            placeholder="예: 등이 뻐근함, 앉으면 다리가 저림 등",
+            "기타 불편사항",
+            placeholder="예: 등이 뻐근함, 앉으면 다리가 저림",
         )
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── 선택 입력 ──────────────────────────────────────────────────────────
+    # ── 신체 치수 ──
     st.markdown(
-        '<div class="section-card"><div class="section-title">📐 신체 치수 <span class="badge-opt">선택</span></div></div>',
+        '<div class="section-label">신체 치수 <span class="badge badge-opt">선택 — 입력할수록 더 정밀해져요</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("입력할수록 더 정밀한 분석이 가능합니다.")
     col3, col4, col5, col6 = st.columns(4)
     with col3:
         thigh_input = st.text_input("허벅지 길이 (cm)", placeholder="예: 42")
     with col4:
-        desk_input = st.text_input("현재 책상 높이 (cm)", placeholder="예: 73")
+        desk_input = st.text_input("책상 높이 (cm)", placeholder="예: 73")
     with col5:
-        chair_input = st.text_input("현재 의자 높이 (cm)", placeholder="예: 45")
+        chair_input = st.text_input("의자 높이 (cm)", placeholder="예: 45")
     with col6:
         sitting_input = st.text_input("앉은키 (cm)", placeholder="예: 88")
 
     budget_raw = st.text_input(
-        "💰 소지자금 / 가구 구매 예산 (원)",
-        placeholder="예: 300000  ← 입력 시 예산 내 가구 추천",
+        "가구 구매 예산 (원)",
+        placeholder="예: 300000 — 입력 시 예산 내 가구 추천",
     )
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── 사진 업로드 ────────────────────────────────────────────────────────
+    # ── 사진 업로드 ──
     st.markdown(
-        '<div class="section-card"><div class="section-title">📸 자세 사진 <span class="badge-opt">선택 · 최대 4장</span></div></div>',
+        '<div class="section-label">자세 사진 <span class="badge badge-opt">선택 — 최대 4장</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption(
-        "선 자세(정면/측면/후면) 총 4장의 사진을 업로드하면 "
-        "거북목·골반 전방경사·척추측만 등을 자동 분석합니다."
-    )
+    st.caption("정면·측면·후면 사진을 올리면 거북목·골반 전방경사·척추측만 등을 자동 분석합니다.")
     uploaded_files = st.file_uploader(
-        "사진 선택 (JPG / PNG, 최대 4장)",
+        "JPG / PNG, 최대 4장",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=True,
         key="photo_uploader",
@@ -535,14 +600,12 @@ def show():
         for i, f in enumerate(uploaded_files):
             with prev_cols[i]:
                 st.image(f, caption=f"사진 {i+1}", use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── 분석 버튼 ──────────────────────────────────────────────────────────
+    # ── 분석 버튼 ──
     st.markdown("<br>", unsafe_allow_html=True)
-    analyze_btn = st.button("🧚 척추요정에게 분석 요청하기")
+    analyze_btn = st.button("척추요정에게 분석 요청하기 →")
 
     if analyze_btn:
-        # 유효성 검사
         errors = []
         if not selected_complaints:
             errors.append("불편사항을 1개 이상 선택해 주세요.")
@@ -550,10 +613,9 @@ def show():
             errors.append("'기타' 선택 시 구체적인 불편사항을 입력해 주세요.")
         if errors:
             for e in errors:
-                st.error(e, icon="🚨")
+                st.error(e)
             st.stop()
 
-        # 데이터 정제
         def safe_float(val):
             try:
                 v = float(str(val).replace(",", "").strip())
@@ -593,20 +655,18 @@ def show():
             "images":          images_b64 if images_b64 else None,
         }
 
-        # GPT 호출
-        with st.spinner("🧚 척추요정이 분석 중입니다... 잠시만 기다려 주세요!"):
+        with st.spinner("분석 중입니다. 잠시만 기다려 주세요..."):
             try:
                 system, content = build_prompt(data)
                 result = call_gpt(system, content)
 
-                # ✅ session_state에 결과 저장 후 result 페이지로 이동
-                st.session_state.result     = result
-                st.session_state.desk_h     = desk_h
-                st.session_state.chair_h    = chair_h
-                st.session_state.page       = "result"
+                st.session_state.result  = result
+                st.session_state.desk_h  = desk_h
+                st.session_state.chair_h = chair_h
+                st.session_state.page    = "result"
                 st.rerun()
 
             except json.JSONDecodeError:
-                st.error("GPT 응답 파싱에 실패했습니다. 다시 시도해 주세요.", icon="❌")
+                st.error("응답 파싱에 실패했습니다. 다시 시도해 주세요.")
             except Exception as e:
-                st.error(f"오류가 발생했습니다: {str(e)}", icon="❌")
+                st.error(f"오류가 발생했습니다: {str(e)}")
