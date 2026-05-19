@@ -517,7 +517,7 @@ def show():
         page_title="척추요정",
         page_icon="🧚",
         layout="wide",
-        initial_sidebar_bar="collapsed",
+        initial_sidebar_state="collapsed",
     )
 
     # ── 헤더 ──
