@@ -545,7 +545,7 @@ def show():
     inject_css()
 
     st.set_page_config(
-        page_title="ㅇ척추요정",
+        page_title="척추요정",
         page_icon="🧚",
         layout="wide",
         initial_sidebar_state="collapsed",
@@ -562,7 +562,7 @@ def show():
     <div class="page-header">
         <div class="page-header-eyebrow">Posture Analysis</div>
         <div class="page-header-title">
-            척추<span class="page-header-accent">요정</span>
+            🧚척추<span class="page-header-accent">요정</span>
         </div>
     </div>
     <div class="page-sub">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>
