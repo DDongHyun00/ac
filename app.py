@@ -1,6 +1,7 @@
 import streamlit as st
 import main
 import result
+import admin
 
 # 최초 실행 시 page 초기화
 if "page" not in st.session_state:
@@ -11,3 +12,6 @@ if st.session_state.page == "main":
 
 elif st.session_state.page == "result":
     result.show()
+
+elif st.session_state.page == "admin":
+    admin.show()

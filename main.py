@@ -200,6 +200,30 @@ def inject_css():
         margin-bottom: 0.8rem;
         font-weight: 300;
     }
+
+    /* ── 헤더 상단 네비 ── */
+    .top-nav {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1.2rem 0 0 0;
+    }
+    .admin-btn-wrap .stButton > button {
+        background: transparent !important;
+        color: #888 !important;
+        border: 1px solid #ccc !important;
+        border-radius: 8px !important;
+        padding: 0.35rem 1rem !important;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.06em !important;
+        width: auto !important;
+        transition: all 0.18s !important;
+    }
+    .admin-btn-wrap .stButton > button:hover {
+        border-color: #1a1a1a !important;
+        color: #1a1a1a !important;
+        transform: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -521,6 +545,14 @@ def show():
     )
 
     # ── 헤더 ──
+    _, btn_col = st.columns([8, 1])
+    with btn_col:
+        st.markdown('<div class="admin-btn-wrap">', unsafe_allow_html=True)
+        if st.button("관리자", key="goto_admin"):
+            st.session_state.page = "admin"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
     st.markdown("""
     <div class="page-header">
         <div class="page-header-eyebrow">Posture Analysis</div>
