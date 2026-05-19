@@ -4,6 +4,7 @@ import base64
 import json
 from PIL import Image
 import io
+import footer
 
 
 # ── CSS ──────────────────────────────────────────────────────────────────────
@@ -46,6 +47,9 @@ def inject_css():
         line-height: 1.0;
         color: #1a1a1a;
         letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 0.3em;
     }
     .page-header-title em {
         font-style: italic;
@@ -143,18 +147,79 @@ def inject_css():
         font-size: 0.87rem;
     }
 
-    /* ── 파일 업로더 ── */
+    /* ── 파일 업로더 — 내장 UI 최소화 ── */
     div[data-testid="stFileUploader"] {
-        background: #fff !important;
-        border: 1.5px dashed #ccc !important;
-        border-radius: 14px !important;
-        padding: 0.5rem !important;
-    }
-    div[data-testid="stFileUploader"]:hover {
-        border-color: #C8F04B !important;
-    }
-    div[data-testid="stFileUploader"] section {
         background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+    /* 드래그존(dropzone) 전체 */
+    div[data-testid="stFileUploader"] > section {
+        background: #fff !important;
+        border: 1.5px solid #e8e4dc !important;
+        border-radius: 16px !important;
+        padding: 0 !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    div[data-testid="stFileUploader"] > section:hover {
+        border-color: #C8F04B !important;
+        box-shadow: 0 0 0 3px rgba(200,240,75,0.15) !important;
+    }
+    /* 내부 드래그 텍스트 영역 */
+    div[data-testid="stFileUploaderDropzone"] {
+        padding: 2rem 1.5rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 1.2rem !important;
+    }
+    /* 아이콘 숨기기 */
+    div[data-testid="stFileUploaderDropzoneInstructions"] > div > span {
+        display: none !important;
+    }
+    /* "Drag and drop" 텍스트 */
+    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:first-of-type {
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        color: #1a1a1a !important;
+        margin: 0 0 0.2rem 0 !important;
+    }
+    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:first-of-type::before {
+        content: '📎  ';
+    }
+    /* "Limit …" 서브텍스트 */
+    div[data-testid="stFileUploaderDropzoneInstructions"] small,
+    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:last-of-type {
+        font-size: 0.74rem !important;
+        color: #bbb !important;
+        margin: 0 !important;
+    }
+    /* Browse files 버튼 */
+    div[data-testid="stFileUploader"] button {
+        background: #1a1a1a !important;
+        color: #C8F04B !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0.45rem 1.2rem !important;
+        font-family: 'DM Sans', sans-serif !important;
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.04em !important;
+        transition: background 0.18s !important;
+        white-space: nowrap !important;
+    }
+    div[data-testid="stFileUploader"] button:hover {
+        background: #2d2d2d !important;
+    }
+    /* 업로드된 파일 항목 */
+    div[data-testid="stFileUploader"] li {
+        background: #f9f8f4 !important;
+        border: 1px solid #ede9e0 !important;
+        border-radius: 10px !important;
+        margin-top: 0.5rem !important;
+        font-size: 0.82rem !important;
+        color: #555 !important;
     }
 
     /* ── 분석 버튼 ── */
@@ -204,35 +269,10 @@ def inject_css():
     /* ── Streamlit 기본 헤더(툴바) 공간 확보 ── */
     .stApp > header { background: transparent !important; }
     .block-container { padding-top: 3.5rem !important; }
-
-    /* ── 관리자 버튼 (헤더 우상단 고정) ── */
-    .admin-btn-wrap {
-        position: fixed;
-        top: 0.6rem;
-        right: 7rem;
-        z-index: 9999;
-    }
-    .admin-btn-wrap .stButton > button {
-        background: rgba(245,242,236,0.92) !important;
-        color: #555 !important;
-        border: 1px solid #ccc !important;
-        border-radius: 8px !important;
-        padding: 0.3rem 0.9rem !important;
-        font-size: 0.73rem !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.06em !important;
-        width: auto !important;
-        backdrop-filter: blur(6px) !important;
-        transition: all 0.18s !important;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.08) !important;
-    }
-    .admin-btn-wrap .stButton > button:hover {
-        border-color: #1a1a1a !important;
-        color: #1a1a1a !important;
-        transform: none !important;
-    }
     </style>
     """, unsafe_allow_html=True)
+    # 푸터 공통 CSS 주입
+    st.markdown(f"<style>{footer.FOOTER_CSS}</style>", unsafe_allow_html=True)
 
 
 # ── OpenAI 클라이언트 ────────────────────────────────────────────────────────
@@ -551,18 +591,84 @@ def show():
         initial_sidebar_state="collapsed",
     )
 
-    # ── 관리자 버튼 (fixed, 헤더 우상단) ──
-    st.markdown('<div class="admin-btn-wrap">', unsafe_allow_html=True)
-    if st.button("관리자", key="goto_admin"):
-        st.session_state.page = "admin"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown("""
     <div class="page-header">
         <div class="page-header-eyebrow">Posture Analysis</div>
         <div class="page-header-title">
             척추<span class="page-header-accent">요정</span>
+            <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 style="margin-left:0.1em; margin-bottom:0.05em; flex-shrink:0;">
+
+              <!-- 날개 왼쪽 -->
+              <ellipse cx="18" cy="38" rx="14" ry="8" fill="#C8F04B" opacity="0.55"
+                       transform="rotate(-30 18 38)"/>
+              <ellipse cx="14" cy="44" rx="10" ry="5.5" fill="#C8F04B" opacity="0.35"
+                       transform="rotate(-20 14 44)"/>
+
+              <!-- 날개 오른쪽 -->
+              <ellipse cx="46" cy="38" rx="14" ry="8" fill="#C8F04B" opacity="0.55"
+                       transform="rotate(30 46 38)"/>
+              <ellipse cx="50" cy="44" rx="10" ry="5.5" fill="#C8F04B" opacity="0.35"
+                       transform="rotate(20 50 44)"/>
+
+              <!-- 몸통 -->
+              <ellipse cx="32" cy="50" rx="7" ry="10" fill="#FDDCAE"/>
+
+              <!-- 드레스 -->
+              <path d="M22 56 Q32 70 42 56 Q38 62 32 64 Q26 62 22 56Z" fill="#C8F04B"/>
+
+              <!-- 팔 왼쪽 -->
+              <path d="M25 50 Q18 52 16 58" stroke="#FDDCAE" stroke-width="2.5"
+                    stroke-linecap="round" fill="none"/>
+
+              <!-- 팔 오른쪽 (마법 지팡이 들고 있음) -->
+              <path d="M39 50 Q46 48 50 43" stroke="#FDDCAE" stroke-width="2.5"
+                    stroke-linecap="round" fill="none"/>
+
+              <!-- 지팡이 -->
+              <line x1="50" y1="43" x2="58" y2="22" stroke="#b0a060" stroke-width="1.8"
+                    stroke-linecap="round"/>
+              <!-- 별 -->
+              <polygon points="58,14 59.5,19 64,19 60.5,22 62,27 58,24 54,27 55.5,22 52,19 56.5,19"
+                       fill="#C8F04B"/>
+              <!-- 별 광채 -->
+              <circle cx="58" cy="14" r="3" fill="#C8F04B" opacity="0.3"/>
+
+              <!-- 머리 -->
+              <circle cx="32" cy="36" r="9" fill="#FDDCAE"/>
+
+              <!-- 눈 -->
+              <circle cx="29" cy="35" r="1.3" fill="#5a3e2b"/>
+              <circle cx="35" cy="35" r="1.3" fill="#5a3e2b"/>
+              <!-- 눈 하이라이트 -->
+              <circle cx="29.7" cy="34.4" r="0.5" fill="white"/>
+              <circle cx="35.7" cy="34.4" r="0.5" fill="white"/>
+
+              <!-- 입 -->
+              <path d="M29.5 38.5 Q32 40.5 34.5 38.5" stroke="#c07050" stroke-width="1.2"
+                    stroke-linecap="round" fill="none"/>
+
+              <!-- 뺨 -->
+              <circle cx="27" cy="38" r="2.5" fill="#ffb6c1" opacity="0.45"/>
+              <circle cx="37" cy="38" r="2.5" fill="#ffb6c1" opacity="0.45"/>
+
+              <!-- 머리카락 -->
+              <path d="M23 33 Q24 24 32 23 Q40 24 41 33" fill="#d4a017"/>
+              <path d="M23 33 Q21 28 25 25" stroke="#d4a017" stroke-width="2"
+                    stroke-linecap="round" fill="none"/>
+              <path d="M41 33 Q43 28 39 25" stroke="#d4a017" stroke-width="2"
+                    stroke-linecap="round" fill="none"/>
+              <!-- 앞머리 삐죽 -->
+              <path d="M28 23 Q30 17 32 23" fill="#d4a017"/>
+              <path d="M32 23 Q34 16 36 23" fill="#c49010"/>
+
+              <!-- 반짝이 파티클 -->
+              <circle cx="12" cy="25" r="1.5" fill="#C8F04B" opacity="0.8"/>
+              <circle cx="8"  cy="32" r="1"   fill="#C8F04B" opacity="0.5"/>
+              <circle cx="16" cy="18" r="1"   fill="#C8F04B" opacity="0.6"/>
+              <circle cx="52" cy="33" r="1.5" fill="#C8F04B" opacity="0.7"/>
+              <circle cx="56" cy="40" r="1"   fill="#C8F04B" opacity="0.5"/>
+            </svg>
         </div>
     </div>
     <div class="page-sub">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>
@@ -624,19 +730,28 @@ def show():
         '<div class="section-label">자세 사진 <span class="badge badge-opt">선택 — 최대 4장</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption("정면·측면·후면 사진을 올리면 거북목·골반 전방경사·척추측만 등을 자동 분석합니다.")
+    st.markdown(
+        '<div class="helper-text">정면·측면·후면 사진을 올리면 거북목·골반 전방경사·척추측만 등을 자동 분석합니다.</div>',
+        unsafe_allow_html=True,
+    )
     uploaded_files = st.file_uploader(
-        "JPG / PNG, 최대 4장",
+        "사진을 끌어다 놓거나 클릭해서 선택하세요 — JPG / PNG",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=True,
         key="photo_uploader",
+        label_visibility="collapsed",
     )
     if uploaded_files:
         uploaded_files = uploaded_files[:4]
+        st.markdown("<br>", unsafe_allow_html=True)
         prev_cols = st.columns(len(uploaded_files))
         for i, f in enumerate(uploaded_files):
             with prev_cols[i]:
-                st.image(f, caption=f"사진 {i+1}", use_container_width=True)
+                st.image(f, use_container_width=True)
+                st.markdown(
+                    f'<div style="text-align:center;font-size:0.72rem;color:#bbb;margin-top:0.3rem;">사진 {i+1}</div>',
+                    unsafe_allow_html=True,
+                )
 
     # ── 분석 버튼 ──
     st.markdown("<br>", unsafe_allow_html=True)
@@ -707,3 +822,5 @@ def show():
                 st.error("응답 파싱에 실패했습니다. 다시 시도해 주세요.")
             except Exception as e:
                 st.error(f"오류가 발생했습니다: {str(e)}")
+
+    footer.render(page="main")
