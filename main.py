@@ -201,23 +201,30 @@ def inject_css():
         font-weight: 300;
     }
 
-    /* ── 헤더 상단 네비 ── */
-    .top-nav {
-        display: flex;
-        justify-content: flex-end;
-        padding: 1.2rem 0 0 0;
+    /* ── Streamlit 기본 헤더(툴바) 공간 확보 ── */
+    .stApp > header { background: transparent !important; }
+    .block-container { padding-top: 3.5rem !important; }
+
+    /* ── 관리자 버튼 (헤더 우상단 고정) ── */
+    .admin-btn-wrap {
+        position: fixed;
+        top: 0.6rem;
+        right: 7rem;
+        z-index: 9999;
     }
     .admin-btn-wrap .stButton > button {
-        background: transparent !important;
-        color: #888 !important;
+        background: rgba(245,242,236,0.92) !important;
+        color: #555 !important;
         border: 1px solid #ccc !important;
         border-radius: 8px !important;
-        padding: 0.35rem 1rem !important;
-        font-size: 0.75rem !important;
-        font-weight: 500 !important;
+        padding: 0.3rem 0.9rem !important;
+        font-size: 0.73rem !important;
+        font-weight: 600 !important;
         letter-spacing: 0.06em !important;
         width: auto !important;
+        backdrop-filter: blur(6px) !important;
         transition: all 0.18s !important;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08) !important;
     }
     .admin-btn-wrap .stButton > button:hover {
         border-color: #1a1a1a !important;
@@ -544,14 +551,12 @@ def show():
         initial_sidebar_state="collapsed",
     )
 
-    # ── 헤더 ──
-    _, btn_col = st.columns([8, 1])
-    with btn_col:
-        st.markdown('<div class="admin-btn-wrap">', unsafe_allow_html=True)
-        if st.button("관리자", key="goto_admin"):
-            st.session_state.page = "admin"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    # ── 관리자 버튼 (fixed, 헤더 우상단) ──
+    st.markdown('<div class="admin-btn-wrap">', unsafe_allow_html=True)
+    if st.button("관리자", key="goto_admin"):
+        st.session_state.page = "admin"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("""
     <div class="page-header">
