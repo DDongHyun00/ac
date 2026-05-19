@@ -28,9 +28,11 @@ def inject_css():
 
     /* ── 헤더 ── */
     .page-header {
-        padding: 3.5rem 0 0.4rem 0;
-        border-bottom: 2px solid #1a1a1a;
-        margin-bottom: 0.35rem;
+    padding: 3.5rem 0 0.4rem 0;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0.35rem;
+    display: inline-block;
+    width: fit-content;
     }
     .page-header-eyebrow {
         font-size: 0.72rem;
