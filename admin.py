@@ -362,7 +362,7 @@ def show():
     <div class="page-sub">서비스 현황 및 분석 데이터를 확인합니다</div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="done-banner">✓ &nbsp; 데이터 기준일: 2025-07-18 &nbsp;·&nbsp; 총 891건 누적</div>', unsafe_allow_html=True)
+    st.markdown('<div class="done-banner">✓ &nbsp; 데이터 기준일: 2026-05-19 &nbsp;·&nbsp; 총 891건 누적</div>', unsafe_allow_html=True)
 
     # ── KPI ──
     st.markdown('<div class="section-label">Overview</div>', unsafe_allow_html=True)
