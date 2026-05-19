@@ -545,7 +545,7 @@ def show():
     inject_css()
 
     st.set_page_config(
-        page_title="🧚척추요정",
+        page_title="ㅇ척추요정",
         page_icon="🧚",
         layout="wide",
         initial_sidebar_state="collapsed",
