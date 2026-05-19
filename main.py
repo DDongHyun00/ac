@@ -143,79 +143,18 @@ def inject_css():
         font-size: 0.87rem;
     }
 
-    /* ── 파일 업로더 — 내장 UI 최소화 ── */
+    /* ── 파일 업로더 ── */
     div[data-testid="stFileUploader"] {
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-    /* 드래그존(dropzone) 전체 */
-    div[data-testid="stFileUploader"] > section {
         background: #fff !important;
-        border: 1.5px solid #e8e4dc !important;
-        border-radius: 16px !important;
-        padding: 0 !important;
-        transition: border-color 0.2s, box-shadow 0.2s !important;
+        border: 1.5px dashed #ccc !important;
+        border-radius: 14px !important;
+        padding: 0.5rem !important;
     }
-    div[data-testid="stFileUploader"] > section:hover {
+    div[data-testid="stFileUploader"]:hover {
         border-color: #C8F04B !important;
-        box-shadow: 0 0 0 3px rgba(200,240,75,0.15) !important;
     }
-    /* 내부 드래그 텍스트 영역 */
-    div[data-testid="stFileUploaderDropzone"] {
-        padding: 2rem 1.5rem !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 1.2rem !important;
-    }
-    /* 아이콘 숨기기 */
-    div[data-testid="stFileUploaderDropzoneInstructions"] > div > span {
-        display: none !important;
-    }
-    /* "Drag and drop" 텍스트 */
-    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:first-of-type {
-        font-family: 'DM Sans', sans-serif !important;
-        font-size: 0.88rem !important;
-        font-weight: 600 !important;
-        color: #1a1a1a !important;
-        margin: 0 0 0.2rem 0 !important;
-    }
-    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:first-of-type::before {
-        content: '📎  ';
-    }
-    /* "Limit …" 서브텍스트 */
-    div[data-testid="stFileUploaderDropzoneInstructions"] small,
-    div[data-testid="stFileUploaderDropzoneInstructions"] > div > p:last-of-type {
-        font-size: 0.74rem !important;
-        color: #bbb !important;
-        margin: 0 !important;
-    }
-    /* Browse files 버튼 */
-    div[data-testid="stFileUploader"] button {
-        background: #1a1a1a !important;
-        color: #C8F04B !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 0.45rem 1.2rem !important;
-        font-family: 'DM Sans', sans-serif !important;
-        font-size: 0.78rem !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.04em !important;
-        transition: background 0.18s !important;
-        white-space: nowrap !important;
-    }
-    div[data-testid="stFileUploader"] button:hover {
-        background: #2d2d2d !important;
-    }
-    /* 업로드된 파일 항목 */
-    div[data-testid="stFileUploader"] li {
-        background: #f9f8f4 !important;
-        border: 1px solid #ede9e0 !important;
-        border-radius: 10px !important;
-        margin-top: 0.5rem !important;
-        font-size: 0.82rem !important;
-        color: #555 !important;
+    div[data-testid="stFileUploader"] section {
+        background: transparent !important;
     }
 
     /* ── 분석 버튼 ── */
@@ -266,33 +205,29 @@ def inject_css():
     .stApp > header { background: transparent !important; }
     .block-container { padding-top: 3.5rem !important; }
 
-    /* ── 관리자 버튼 — 툴바 Share 버튼 바로 왼쪽 ── */
+    /* ── 관리자 버튼 (헤더 우상단 고정) ── */
     .admin-btn-wrap {
         position: fixed;
-        top: 0px;
-        right: 280px;          /* Streamlit 툴바 아이콘 영역 너비 맞춤 */
-        height: 38px;          /* 툴바 높이 */
-        display: flex;
-        align-items: center;
-        z-index: 99999;
+        top: 0.6rem;
+        right: 7rem;
+        z-index: 9999;
     }
     .admin-btn-wrap .stButton > button {
-        background: transparent !important;
-        color: #666 !important;
-        border: none !important;
-        border-radius: 6px !important;
-        padding: 0.25rem 0.75rem !important;
-        font-size: 0.78rem !important;
-        font-weight: 500 !important;
-        letter-spacing: 0.04em !important;
+        background: rgba(245,242,236,0.92) !important;
+        color: #555 !important;
+        border: 1px solid #ccc !important;
+        border-radius: 8px !important;
+        padding: 0.3rem 0.9rem !important;
+        font-size: 0.73rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.06em !important;
         width: auto !important;
-        height: 28px !important;
-        line-height: 1 !important;
-        transition: background 0.15s, color 0.15s !important;
-        box-shadow: none !important;
+        backdrop-filter: blur(6px) !important;
+        transition: all 0.18s !important;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08) !important;
     }
     .admin-btn-wrap .stButton > button:hover {
-        background: rgba(0,0,0,0.06) !important;
+        border-color: #1a1a1a !important;
         color: #1a1a1a !important;
         transform: none !important;
     }
@@ -689,28 +624,19 @@ def show():
         '<div class="section-label">자세 사진 <span class="badge badge-opt">선택 — 최대 4장</span></div>',
         unsafe_allow_html=True,
     )
-    st.markdown(
-        '<div class="helper-text">정면·측면·후면 사진을 올리면 거북목·골반 전방경사·척추측만 등을 자동 분석합니다.</div>',
-        unsafe_allow_html=True,
-    )
+    st.caption("정면·측면·후면 사진을 올리면 거북목·골반 전방경사·척추측만 등을 자동 분석합니다.")
     uploaded_files = st.file_uploader(
-        "사진을 끌어다 놓거나 클릭해서 선택하세요 — JPG / PNG",
+        "JPG / PNG, 최대 4장",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=True,
         key="photo_uploader",
-        label_visibility="collapsed",
     )
     if uploaded_files:
         uploaded_files = uploaded_files[:4]
-        st.markdown("<br>", unsafe_allow_html=True)
         prev_cols = st.columns(len(uploaded_files))
         for i, f in enumerate(uploaded_files):
             with prev_cols[i]:
-                st.image(f, use_container_width=True)
-                st.markdown(
-                    f'<div style="text-align:center;font-size:0.72rem;color:#bbb;margin-top:0.3rem;">사진 {i+1}</div>',
-                    unsafe_allow_html=True,
-                )
+                st.image(f, caption=f"사진 {i+1}", use_container_width=True)
 
     # ── 분석 버튼 ──
     st.markdown("<br>", unsafe_allow_html=True)
