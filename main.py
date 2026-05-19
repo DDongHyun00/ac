@@ -46,9 +46,6 @@ def inject_css():
         line-height: 1.0;
         color: #1a1a1a;
         letter-spacing: -0.02em;
-        display: flex;
-        align-items: center;
-        gap: 0.2em;
     }
     .page-header-title em {
         font-style: italic;
@@ -566,84 +563,6 @@ def show():
         <div class="page-header-eyebrow">Posture Analysis</div>
         <div class="page-header-title">
             척추<span class="page-header-accent">요정</span>
-            <svg width="62" height="76" viewBox="0 0 62 76" fill="none" xmlns="http://www.w3.org/2000/svg"
-                 style="flex-shrink:0; margin-bottom:0.05em;">
-
-              <!-- 날개 왼쪽 위 -->
-              <ellipse cx="17" cy="36" rx="14" ry="7.5" fill="#C8F04B" opacity="0.55"
-                       transform="rotate(-32 17 36)"/>
-              <!-- 날개 왼쪽 아래 -->
-              <ellipse cx="13" cy="43" rx="9.5" ry="5" fill="#C8F04B" opacity="0.32"
-                       transform="rotate(-18 13 43)"/>
-
-              <!-- 날개 오른쪽 위 -->
-              <ellipse cx="45" cy="36" rx="14" ry="7.5" fill="#C8F04B" opacity="0.55"
-                       transform="rotate(32 45 36)"/>
-              <!-- 날개 오른쪽 아래 -->
-              <ellipse cx="49" cy="43" rx="9.5" ry="5" fill="#C8F04B" opacity="0.32"
-                       transform="rotate(18 49 43)"/>
-
-              <!-- 몸통 -->
-              <ellipse cx="31" cy="49" rx="6.5" ry="9.5" fill="#FDDCAE"/>
-
-              <!-- 드레스 -->
-              <path d="M21 55 Q31 68 41 55 Q37 61 31 63 Q25 61 21 55Z" fill="#C8F04B"/>
-
-              <!-- 팔 왼쪽 -->
-              <path d="M24.5 49 Q17 51 15 57" stroke="#FDDCAE" stroke-width="2.4"
-                    stroke-linecap="round" fill="none"/>
-
-              <!-- 팔 오른쪽 (지팡이) -->
-              <path d="M37.5 49 Q45 47 49 42" stroke="#FDDCAE" stroke-width="2.4"
-                    stroke-linecap="round" fill="none"/>
-
-              <!-- 지팡이 막대 -->
-              <line x1="49" y1="42" x2="57" y2="20" stroke="#c8a830" stroke-width="1.8"
-                    stroke-linecap="round"/>
-
-              <!-- 별 꼭짓점 5개 -->
-              <polygon points="57,12 58.6,17.2 64,17.2 59.7,20.5 61.3,25.7 57,22.4 52.7,25.7 54.3,20.5 50,17.2 55.4,17.2"
-                       fill="#C8F04B"/>
-              <!-- 별 글로우 -->
-              <circle cx="57" cy="13" r="4" fill="#C8F04B" opacity="0.25"/>
-
-              <!-- 머리 -->
-              <circle cx="31" cy="35" r="9" fill="#FDDCAE"/>
-
-              <!-- 눈 -->
-              <circle cx="28" cy="34" r="1.3" fill="#4a3020"/>
-              <circle cx="34" cy="34" r="1.3" fill="#4a3020"/>
-              <!-- 눈 하이라이트 -->
-              <circle cx="28.6" cy="33.4" r="0.5" fill="white"/>
-              <circle cx="34.6" cy="33.4" r="0.5" fill="white"/>
-
-              <!-- 입 (미소) -->
-              <path d="M28.5 37.5 Q31 39.5 33.5 37.5" stroke="#c06848" stroke-width="1.2"
-                    stroke-linecap="round" fill="none"/>
-
-              <!-- 볼터치 -->
-              <circle cx="26" cy="37" r="2.4" fill="#ffb6c1" opacity="0.4"/>
-              <circle cx="36" cy="37" r="2.4" fill="#ffb6c1" opacity="0.4"/>
-
-              <!-- 머리카락 (뒤) -->
-              <path d="M22 32 Q23 23 31 22 Q39 23 40 32" fill="#d4a020"/>
-              <!-- 머리카락 옆 -->
-              <path d="M22 32 Q20 27 24 24" stroke="#d4a020" stroke-width="2.2"
-                    stroke-linecap="round" fill="none"/>
-              <path d="M40 32 Q42 27 38 24" stroke="#d4a020" stroke-width="2.2"
-                    stroke-linecap="round" fill="none"/>
-              <!-- 앞머리 삐죽 -->
-              <path d="M27 22 Q29 15 31 22" fill="#d4a020"/>
-              <path d="M31 22 Q33 14 35 22" fill="#c49010"/>
-
-              <!-- 반짝이 파티클 -->
-              <circle cx="10" cy="24" r="1.6" fill="#C8F04B" opacity="0.75"/>
-              <circle cx="6"  cy="32" r="1.0" fill="#C8F04B" opacity="0.45"/>
-              <circle cx="14" cy="16" r="1.0" fill="#C8F04B" opacity="0.55"/>
-              <circle cx="51" cy="32" r="1.5" fill="#C8F04B" opacity="0.65"/>
-              <circle cx="55" cy="40" r="1.0" fill="#C8F04B" opacity="0.45"/>
-              <circle cx="8"  cy="44" r="0.8" fill="#C8F04B" opacity="0.35"/>
-            </svg>
         </div>
     </div>
     <div class="page-sub">당신의 자세를 분석하고, 맞춤 솔루션을 제안해 드려요</div>
